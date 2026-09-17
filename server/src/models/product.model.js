@@ -1,0 +1,86 @@
+import mongoose from "mongoose";
+
+const productSchema = new mongoose.Schema({
+    title:{
+        type:String,
+        required:true,
+        minlength:3,
+        maxlength:20,
+    },
+    description:{
+        type:String,
+        required:true,
+        minlength:3,
+        maxlength:200,
+    },
+    price:{
+       amount:{
+        type:Number,
+        required:true,
+        min:0,
+        max:1000000,
+        default:0,
+       },
+       currency:{
+        type:String,
+        required:true,
+        enum:['USD','INR'],
+        default:'INR',
+       }
+    },
+    category:[
+        {
+            type:String,
+            required:true,
+            minlength:3,
+            maxlength:20,
+        }
+    ],
+    images:[
+        {
+            imageKitId:{
+                type:String,
+                required:true,
+            },
+            url:{
+                type:String,
+                required:true,
+            },
+            order:{
+                type:Number,
+                required:true,
+                min:0,
+                max:1000,
+                default:0,
+            }
+        }
+    ],
+    seller:{
+        type:mongoose.Schema.Types.ObjectId,
+        required:true,
+    },
+    sizes:[
+        {
+            size:{
+                type:String,
+                required:true,
+                enum:['XS','S','M','L','XL','XXL'],
+            },
+            stock:{
+                type:Number,
+                required:true,
+                min:0,
+            }
+        }
+    ],
+    isPublished:{
+        type:Boolean,
+        default:false,
+        required:true,
+    },
+},{
+    timestamps:true,
+})
+
+const productModel = mongoose.model('Product',productSchema);
+export default productModel;
