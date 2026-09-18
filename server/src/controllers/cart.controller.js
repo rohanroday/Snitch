@@ -101,10 +101,10 @@ export async function removeProductFromCart(req,res) {
 export async function getCart(req,res){
 
     const user = req.user;
-    const cart = await cartModel.findOne({userId:user.id}).populate("products.product") || await cartModel.create({userId:user.id})
+    const cart = await cartModel.findOne({userId:user.id}).populate("products.productId") || await cartModel.create({userId:user.id})
 
     const totalPrice = cart.products.reduce((total,item)=>{
-        return total + (item.price.amount * item.quantity)
+        return total + (item.productId.price.amount * item.quantity)
     },0);
 
     return res.status(200).json({
