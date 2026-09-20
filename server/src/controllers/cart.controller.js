@@ -18,15 +18,15 @@ export async function addToCart(req,res){
     if(quantity>size.quantity){
         return res.status(400).json({message:"Quantity exceeds stock"});
     }
- const  cart = await cartModel.findOne({user:req.user.id}) ?? await cartModel.create({user:req.user.id})   
+ const  cart = await cartModel.findOne({userId:req.user.id}) ?? await cartModel.create({userId:req.user.id})   
 
- const productInCart = cart.products.find(p=>productId===p.product.toString() && p.size===productSize);
+ const productInCart = cart.products.find(p=>productId===p.productId.toString() && p.size===productSize);
  if(productInCart){
     const totalQuantity = productInCart.quantity + quantity;
     if(totalQuantity>size.stock){
         return res.status(400).json({message:"Quantity exceeds stock"});
     }
-    await cartModel.findByIdAndUpdate({
+    await cartModel.findOneAndUpdate({
        userId:req.user.id,
    },{
        $set:{
@@ -36,7 +36,7 @@ export async function addToCart(req,res){
     arrayFilters:[{"elem.product":productId,"elem.size":productSize}],
    })
  }else{
-    await cartModel.findByIdAndUpdate({
+    await cartModel.findOneAndUpdate({
        userId:req.user.id,
    },{
        $push:{
@@ -70,7 +70,7 @@ export async function removeProductFromCart(req,res) {
         return res.status(404).json({message:"Product not found in cart"});
     }
     if(productInCart.quantity <= quantity){
-        await cartModel.findByIdAndUpdate({
+        await cartModel.findOneAndUpdate({
             userId:req.user.id,
         },{
             $pull:{
@@ -82,7 +82,7 @@ export async function removeProductFromCart(req,res) {
         })
     }else{
         const newQuantity = productInCart.quantity - quantity;
-        await cartModel.findByIdAndUpdate({
+        await cartModel.findOneAndUpdate({
             userId:req.user.id,
         },{
             $set:{
