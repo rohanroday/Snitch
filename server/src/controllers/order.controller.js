@@ -1,7 +1,6 @@
 import orderModel from "../models/order.model.js";
 import cartModel from "../models/cart.model.js";
-import productModel from "../models/product.model.js";
-
+  import productModel from "../models/product.model.js";
 
 export async function createOrder(req, res) {
   const user = req.user;
@@ -27,23 +26,22 @@ export async function createOrder(req, res) {
   cart.products.forEach((p) => {
     const productSize = p.size;
     const size = p.productId.sizes.find((s) => s.size === productSize);
+    if (!size) {
+      sizeError.push({
+        productId: p.productId._id,
+        message: `Size ${productSize} not available`,
+      });
+      return;
+    }
+    const isStockAvailable = size.stock >= p.quantity;
+    if (!isStockAvailable) {
+      sizeError.push({
+        productId: p.productId._id,
+        message: `Only ${size.stock} available for size:${productSize}`,
+      });
+      return;
+    }
   });
-
-  if (!size) {
-    sizeError.push({
-      productId: p.productId._id,
-      message: `Size ${productSize} not available`,
-    });
-    return;
-  }
-  const isStockAvailable = size.stock >= p.quantity;
-  if (!isStockAvailable) {
-    sizeError.push({
-      productId: p.productId._id,
-      message: `Only ${size.stock} available for size:${productSize}`,
-    });
-    return;
-  }
   if (sizeError.length > 0) {
     return res
       .status(400)
@@ -100,17 +98,47 @@ export async function createOrder(req, res) {
   });
 }
 
-export async function getOrders(req,res){
+  export async function getOrders(req, res) {
   const user = req.user;
-  const orders = (await orderModel.find({userId:user.id})).toSorted({createdAt:-1});
+  const orders = (await orderModel.find({ userId: user.id })).sort({
+    createdAt: -1,
+  });
   return res.status(200).json({
-    message:"Orders fetched successfully",
-    data:{
+    message: "Orders fetched successfully",
+    data: {
       orders,
-    }
+    },
   });
 }
 
-export async function cancelOrder(req,res){}
+export async function cancelOrder(req, res) {
+  const user = req.user;
+  const { orderId } = req.params;
+  const order = await orderModel.findOne({ _id: orderId });
+  if (!order) {
+    return res.status(400).json({ message: "Order not found" });
+  }
+  if (order.userId.toString() !== user.id.toString()) {
+    return res
+      .status(400)
+      .json({ message: "You are not authorized to cancel this order" });
+  }
+  if (order.status === "CANCELLED") {
+    return res.status(400).json({ message: "Order is already cancelled" });
+  }
+  if (["DELIVERED", "SHIPPED"].includes(order.status)) {
+    return res.status(400).json({
+      message: `Order cannot be cancelled as it is already ${order.status}`,
+    });
+  }
+  await orderModel.updateOne(
+    { _id: orderId },
+    { $set: { status: "CANCELLED" } },
+  );
+  return res.status(200).json({
+    message: "Order cancelled successfully",
+    data: order,
+  });
+}
 
-export async function updateOrderStatus(req,res){}
+export async function updateOrderStatus(req, res) {}
