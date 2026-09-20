@@ -1,6 +1,6 @@
 import orderModel from "../models/order.model.js";
 import cartModel from "../models/cart.model.js";
-  import productModel from "../models/product.model.js";
+import productModel from "../models/product.model.js";
 
 export async function createOrder(req, res) {
   const user = req.user;
@@ -98,7 +98,7 @@ export async function createOrder(req, res) {
   });
 }
 
-  export async function getOrders(req, res) {
+export async function getOrders(req, res) {
   const user = req.user;
   const orders = (await orderModel.find({ userId: user.id })).sort({
     createdAt: -1,
@@ -137,8 +137,42 @@ export async function cancelOrder(req, res) {
   );
   return res.status(200).json({
     message: "Order cancelled successfully",
-    data: order,
   });
 }
 
-export async function updateOrderStatus(req, res) {}
+export async function updateOrderStatus(req, res) {
+  const user = req.user;
+  if (user.role !== "seller") {
+    return res
+      .status(400)
+      .json({ message: "You are not authorized to update order status" });
+  }
+  const { orderId } = req.params;
+  const order = await orderModel.findOne({ _id: orderId });
+  const { status } = req.body;
+  if (status === "PLACED") {
+    if (["CANCELLED", "DELIVERED", "SHIPPED"].includes(order.status)) {
+      return res.status(400).json({ message: "Order is already placed" });
+    }
+    await orderModel.updateOne(
+      { _id: orderId },
+      { $set: { status: "PLACED" } },
+    );
+  }
+  if (status === "DELIVERED") {
+    if (["CANCELLED"].includes(order.status)) {
+      return res.status(400).json({
+        message:
+          "Order cannot be delivered as it has already been" +
+          order.status.toLowerCase(),
+      });
+    }
+    await orderModel.updateOne(
+      { _id: orderId },
+      { $set: { status: "DELIVERED" } },
+    );
+  }
+  return res.status(200).json({
+    message: "Order status updated successfully",
+  });
+}
