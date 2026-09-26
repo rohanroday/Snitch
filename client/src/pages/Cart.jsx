@@ -6,7 +6,7 @@ import { formatPrice } from "../components/ProductCard";
 
 const SHIPPING = 99;
 const DISCOUNT = 0;
-
+// hjsdbjh
 export default function Cart() {
   const { user } = useAuth();
   const { items, totalPrice, loading, error, addItem, removeItem, refresh } = useCart();
