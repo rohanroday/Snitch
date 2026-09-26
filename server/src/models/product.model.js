@@ -5,7 +5,7 @@ const productSchema = new mongoose.Schema({
         type:String,
         required:true,
         minlength:3,
-        maxlength:20,
+        maxlength:60,
     },
     description:{
         type:String,
@@ -82,5 +82,5 @@ const productSchema = new mongoose.Schema({
     timestamps:true,
 })
 
-const productModel = mongoose.model('products',productSchema);
-export default productModel;
+const productodel = mongoose.model('products',productSchema);
+export default productodel;

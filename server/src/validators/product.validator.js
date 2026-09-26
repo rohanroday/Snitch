@@ -6,7 +6,7 @@ export const createProductValidator = [
     .trim()
     .notEmpty()
     .withMessage("Title is required")
-    .isLength({ min: 3, max: 20 })
+    .isLength({ min: 3 })
     .withMessage("Title must be between 3 and 20 characters"),
   body("description")
     .notEmpty()

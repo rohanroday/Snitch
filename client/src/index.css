@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  --color-cream: #f4f0e8;
+  --color-cream-dark: #ece5d8;
+  --color-ink: #16140f;
+  --color-ink-soft: #383429;
+  --color-stone: #8a8272;
+  --color-line: #ddd5c4;
+  --color-clay: #a8632f;
+  --color-olive: #5c5a41;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--color-ink);
+  color: var(--color-cream);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Custom range input for price filter */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  background: var(--color-line);
+  border-radius: 999px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--color-ink);
+  cursor: pointer;
+  border: 2px solid var(--color-cream);
+  box-shadow: 0 0 0 1px var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
